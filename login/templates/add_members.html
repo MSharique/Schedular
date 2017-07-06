@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Invite</title>
+    </head>
+
+    <body>
+        {% if user.is_authenticated %}
+            <p>welcome {{ user.username }}</p>
+            <h1>Invite members to your meeting</h1>
+            <p>Please click <a href="/members/">this</a> link to invite members to the meeting</p>
+            <p><a href="/">Home</a></p>
+        {% else %}
+            <p><a href="/login">Login</a></p>
+            <p><a href="/register">Signup</a></p>
+        {% endif %}
+    </body>
+</html>

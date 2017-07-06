@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Meeting</title>
+    </head>
+    <body>
+        {% if user.is_authenticated %}
+            <p>welcome {{ user.username }}</p>
+            <h1>Create a meeting</h1>
+            <form id="MeetingForm_form" method="post" action="/meeting/">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" name="submit" value="Create Category" />
+            </form>
+        {% else %}
+            <p><a href="/login">Login</a></p>
+            <p><a href="/register">Signup</a></p>
+        {% endif %}
+    </body>
+
+</html>

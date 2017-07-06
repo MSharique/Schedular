@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Update Timezone</title>
+    </head>
+    <body>
+        {% if user.is_authenticated %}
+            <p>welcome {{ user.username }}</p>
+            <h1>Update your timezone</h1>
+            <form id="TimezoneForm_Form" method="post" action="/timezone/">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" name="submit" value="Create Category" />
+            </form>
+        {% else %}
+            <p><a href="/login">Login</a></p>
+            <p><a href="/register">Signup</a></p>
+        {% endif %}
+    </body>
+</html>
