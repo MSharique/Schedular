@@ -121,7 +121,7 @@ def members(request):
 					dt = datetime.datetime.strptime(dt1,"%Y-%m-%d %H:%M:%S")
 					dt = tz1.localize(dt)
 					dt = dt.astimezone(tz2)
-					dt = dt.strftime("%Y-%m-%dT%H:%M:%S")
+					dt = dt.strftime("%Y-%m-%d %H:%M:%S")
 					nst = dt
 
 					dt = datetime.datetime.strptime(dt2,"%Y-%m-%d %H:%M:%S")
@@ -130,7 +130,7 @@ def members(request):
 					dt = dt.strftime("%Y-%m-%d %H:%M:%S")
 					nend = dt
 					
-					subject = "Meeting Invite!"
+					subject = "Meeting Invite! @ "+ nend
 					# message = "<HTML><BODY><h1> You have been invited to this meeting!</h1><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=1\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=2\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=3\" >Yes</a></BODY></HTML>"
 					text_content = 'Text'
 					html_content = render_to_string(
