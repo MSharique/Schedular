@@ -609,12 +609,17 @@ class Time_zone(models.Model):
 		tt = Time_zone(username = usern, timezone = zone)
 		tt.save()
 
+	def update_timezone(self, usern, zone):
+		tt = Time_zone.objects.get(username = usern)
+		tt.timezone = zone
+		tt.save()
+	
 	def __str__(self):
 		return self.timezone
 
 class Meeting(models.Model):
 	title = models.CharField(max_length=50)
-	username = models.ForeignKey('auth.user')
+	username = models.CharField(max_length=50)
 	hash_meet = models.CharField(max_length=50)
 	st_date = models.DateTimeField()
 	end_date = models.DateTimeField()
@@ -636,7 +641,7 @@ class Members(models.Model):
 					 timezone=timezone, status=0)
 		tt.save()
 
-	def set_status(self, hash_meet, status, username, timezone):
+	def set_status(self, hash_meet, status, email):
 		q = Members.objects.filter(hash_meet=hash_meet, username=username)
 		q.status = status 
 		q.save()

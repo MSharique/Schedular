@@ -8,9 +8,11 @@ from .models import Time_zone, Meeting, Members
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.contrib.auth.models import User
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMultiAlternatives
 from django.core.mail import send_mail
 from django.contrib import messages
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 from django import forms
 import pytz
 import datetime
@@ -48,8 +50,12 @@ def timezone(request):
 			username = current_user.username
 			zone =  userObj['timezone']
 			if (User.objects.filter(username=username).exists()):
-				temp = Time_zone()
-				temp.set_timezone(username, zone)
+				if (Time_zone.objects.filter(username=username).exists()):
+					temp = Time_zone()
+					temp.update_timezone(username, zone)
+				else:
+					temp = Time_zone()
+					temp.set_timezone(username, zone)
 				return HttpResponseRedirect('/')
 		else:
 			return render(request, 'timezone.html', {'form' : form})
@@ -74,7 +80,7 @@ def meeting(request):
 				time = Time_zone.objects.get(username=username)
 				hash_object = hashlib.md5(title+str(st_date)+str(end_date))
 				hm = hash_object.hexdigest()
-				temp.add_meeting(title, user, hm, st_date, end_date)
+				temp.add_meeting(title, username, hm, st_date, end_date)
 				request.session['hm'] = hm
 				request.session['title'] = title
 				request.session['st_date'] = st_date.strftime('%Y-%m-%d %H:%M:%S')
@@ -95,6 +101,7 @@ def members(request):
 			userObj = form.cleaned_data
 			current_user = request.user
 			username = current_user.username
+			from_email = current_user.email
 			hash_meet = request.session.get('hm')
 			title = request.session.get('title')
 			dt1 = request.session.get('st_date')
@@ -103,31 +110,44 @@ def members(request):
 			email = userObj['email']
 			timezone = userObj['timezone']
 			if (User.objects.filter(username=username).exists()):
-				temp = Members()
-				temp.add_status(hash_meet, title, email, timezone)
-
-				tz1 = pytz.timezone(str(tz))
-				tz2 = pytz.timezone(timezone)
-				dt = datetime.datetime.strptime(dt1,"%Y-%m-%dT%H:%M:%S")
-				dt = tz1.localize(dt)
-				dt = dt.astimezone(tz2)
-				dt = dt.strftime("%Y-%m-%dT%H:%M:%S")
-				nst = dt
-
-				dt = datetime.datetime.strptime(dt2,"%Y-%m-%dT%H:%M:%S")
-				dt = tz1.localize(dt)
-				dt = dt.astimezone(tz2)
-				dt = dt.strftime("%Y-%m-%dT%H:%M:%S")
-				nend = dt
 				
-				subject = "Meeting Invite!"
-				message = "<HTML><BODY><h1> You have been invited to this meeting!</h1><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=1\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=2\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=3\" >Yes</a></BODY></HTML>"
-				
-				sender = "abc@aaa.com"
-				msg = EmailMessage(subject, message, sender, email)
-				msg.content_subtype = "html"
-				msg.send()
-				return render(request, 'add_members.html')
+				if not (Members.objects.filter(hash_meet=hash_meet, email=email).exists()):
+
+					temp = Members()
+					temp.add_status(hash_meet, title, email, timezone)
+
+					tz1 = pytz.timezone(str(tz))
+					tz2 = pytz.timezone(timezone)
+					dt = datetime.datetime.strptime(dt1,"%Y-%m-%d %H:%M:%S")
+					dt = tz1.localize(dt)
+					dt = dt.astimezone(tz2)
+					dt = dt.strftime("%Y-%m-%dT%H:%M:%S")
+					nst = dt
+
+					dt = datetime.datetime.strptime(dt2,"%Y-%m-%d %H:%M:%S")
+					dt = tz1.localize(dt)
+					dt = dt.astimezone(tz2)
+					dt = dt.strftime("%Y-%m-%d %H:%M:%S")
+					nend = dt
+					
+					subject = "Meeting Invite!"
+					# message = "<HTML><BODY><h1> You have been invited to this meeting!</h1><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=1\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=2\" >Yes</a><a href=\"https://www.example.com?hm="+hash_meet+"&email="+email"&status=3\" >Yes</a></BODY></HTML>"
+					text_content = 'Text'
+					html_content = render_to_string(
+					'email.html',
+					{'hm': hash_meet, 'email': email}
+					)
+					text_content = strip_tags(html_content)
+					msg = EmailMultiAlternatives(subject, text_content, from_email, [email])
+					msg.attach_alternative(html_content, "text/html")
+					msg.send()
+
+					# msg = EmailMessage(subject, message, sender, email)
+					# msg.content_subtype = "html"
+					# msg.send()
+					return render(request, 'add_members.html')
+				else:
+					return render(request, 'members.html', {'form' : form})		
 		else:
 			return render(request, 'members.html', {'form' : form})
 	else:
@@ -138,3 +158,8 @@ def add_members(request):
 	hm =  request.session.get('hm')
 	return render_to_response('add_members.html', {'hm':hm})
 	
+def feedback(request, hm, email, status):
+	# hm = request.GET.get('hm')
+	temp = Members()
+	temp.set_status(hm, int(status, email))
+	return render_to_response('feedback.html', {'hm':hm})
