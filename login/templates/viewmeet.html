@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Feedback</title>
+    </head>
+
+    <body>
+       
+       <label for="meet"> Scheduled Meetings!</label>
+		  {% for dist in meet %}
+		  <h1> Title: {{ dist.title }} </h1>
+		  <p> Start date: {{ dist.st_date }} </p>
+		  <p> End date: {{ dist.end_date }} </p>
+		  <p><a href="{% url 'viewresponse' dist.hash_meet %}">Response</a></p>
+		  {% endfor %}
+		
+    </body>
+</html>

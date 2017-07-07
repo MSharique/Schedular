@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Response</title>
+    </head>
+
+    <body>
+       
+       <label for="mem"> Responsse for Scheduled Meetings!</label>
+        {% for dist in mem %}
+		  <h1> Title: {{ dist.title }} </h1>
+		  <p> Email: {{ dist.email }} </p>
+		  <p> Status: {{ dist.status }} </p>
+		  {% endfor %}
+		
+    </body>
+</html>

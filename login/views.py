@@ -163,3 +163,13 @@ def feedback(request, hm, email, status):
 	temp = Members()
 	temp.set_status(hm, int(status, email))
 	return render_to_response('feedback.html', {'hm':hm})
+
+def viewmeet(request):
+	current_user = request.user
+	username = current_user.username
+	meet = Meeting.objects.filter(username=username)
+	return render_to_response('viewmeet.html',{'meet': meet})
+
+def viewresponse(request, hm):
+	mem = Members.objects.filter(hash_meet=hm)
+	return render_to_response('viewresponse.html',{'mem': mem})

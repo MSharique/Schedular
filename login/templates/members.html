@@ -6,7 +6,7 @@
     <body>
         {% if user.is_authenticated %}
             <p>welcome {{ user.username }}</p>
-            <h1>Time zone</h1>
+            <h1>Invite members</h1>
         <form id="TimezoneForm_Form" method="post" action="/members/">
             {% csrf_token %}
             {{ form.as_p }}
